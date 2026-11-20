@@ -1,0 +1,727 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LEMAX Control | Gestão de Produção & Kanban</title>
+  <style>
+    :root {
+      --bg-dark: #141414;
+      --bg-card: #1E1E1E;
+      --bg-elevated: #282828;
+      --wood: #8B5A2B;
+      --wood-light: #A6723E;
+      --gold: #D4AF37;
+      --gold-hover: #E5C150;
+      --text-main: #F5F5F5;
+      --text-muted: #B0B0B0;
+      --border: #333333;
+      --danger: #E74C3C;
+      --success: #2ECC71;
+      --whatsapp: #25D366;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.45;
+      padding-bottom: 40px;
+    }
+
+    header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 4%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 1.25rem;
+      letter-spacing: 2px;
+      color: var(--gold);
+      line-height: 1.1;
+    }
+
+    .brand span {
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #111;
+    }
+
+    .btn-gold:hover {
+      background: var(--gold-hover);
+    }
+
+    .btn-outline {
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .container {
+      padding: 24px 4% 0;
+    }
+
+    /* KPIS */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .kpi-card small {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-bottom: 6px;
+    }
+
+    .kpi-card strong {
+      font-size: 1.55rem;
+      color: var(--gold);
+    }
+
+    /* TOOLBAR */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 220px;
+      max-width: 360px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-main);
+      font-size: 0.92rem;
+    }
+
+    /* KANBAN */
+    .kanban-board {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(275px, 1fr));
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+    }
+
+    .kanban-col {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 420px;
+    }
+
+    .col-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .col-header h3 {
+      font-size: 0.92rem;
+      color: var(--gold);
+    }
+
+    .col-count {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .project-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--wood-light);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .project-card.urgent {
+      border-left-color: var(--danger);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .card-top strong {
+      font-size: 0.98rem;
+      color: #FFF;
+    }
+
+    .tag-alerta {
+      background: rgba(231, 76, 60, 0.18);
+      color: #FF7666;
+      border: 1px solid var(--danger);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+
+    .card-meta {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .card-valor {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .progress-mini {
+      height: 6px;
+      background: #141414;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-mini div {
+      height: 100%;
+      background: var(--gold);
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .btn-mini {
+      padding: 5px 9px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: #1B1B1B;
+      color: var(--text-main);
+    }
+
+    .btn-mini:hover:not(:disabled) {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .btn-mini:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    /* MODAIS */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--wood-light);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 520px;
+      padding: 24px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h3 {
+      color: var(--gold);
+      font-size: 1.15rem;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #DDD;
+    }
+
+    input, select {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text-main);
+      font-size: 0.92rem;
+    }
+
+    .timeline-step {
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+    }
+
+    .timeline-step.done {
+      border-color: var(--success);
+      color: #A9F5C7;
+    }
+
+    .timeline-step.current {
+      border-color: var(--gold);
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .btn-whatsapp {
+      width: 100%;
+      margin-top: 12px;
+      background: var(--whatsapp);
+      color: #0B2413;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 800;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <svg width="42" height="42" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="56" height="56" rx="12" fill="#141414" stroke="#D4AF37" stroke-width="2.5"/>
+        <path d="M16 18V46H32" stroke="#D4AF37" stroke-width="4.5" stroke-linecap="square"/>
+        <path d="M26 46V24L37 35L48 24V46" stroke="#A6723E" stroke-width="4.5" stroke-linecap="square"/>
+      </svg>
+      <div>
+        <strong>LEMAX CONTROL</strong>
+        <span>Móveis Planejados • Produção</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-outline" onclick="restaurarExemplos()">Restaurar Exemplos</button>
+      <button class="btn btn-gold" onclick="abrirModalNovo()">+ Novo Projeto</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- KPIS -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <small>Projetos Ativos</small>
+        <strong id="kpiAtivos">0</strong>
+      </div>
+      <div class="kpi-card">
+        <small>Volume em Produção</small>
+        <strong id="kpiValor">R$ 0</strong>
+      </div>
+      <div class="kpi-card">
+        <small>Prazo Crítico / Atenção</small>
+        <strong id="kpiUrgentes" style="color: #FF7666;">0</strong>
+      </div>
+      <div class="kpi-card">
+        <small>Avanço Médio das Obras</small>
+        <strong id="kpiProgresso">0%</strong>
+      </div>
+    </div>
+
+    <!-- BUSCA -->
+    <div class="toolbar">
+      <input type="text" id="campoBusca" class="search-input" placeholder="Buscar por cliente, ambiente ou MDF..." oninput="renderizarTudo()" />
+    </div>
+
+    <!-- QUADRO KANBAN -->
+    <div class="kanban-board" id="kanbanBoard"></div>
+  </div>
+
+  <!-- MODAL NOVO PROJETO -->
+  <div class="modal-backdrop" id="modalNovo">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Cadastrar Novo Projeto na LEMAX</h3>
+        <button class="close-btn" onclick="fecharModal('modalNovo')">&times;</button>
+      </div>
+      <form onsubmit="salvarProjeto(event)">
+        <div class="form-group">
+          <label for="pCliente">Nome do Cliente *</label>
+          <input type="text" id="pCliente" required placeholder="Ex: Roberto Almeida" />
+        </div>
+        <div class="form-group">
+          <label for="pAmbiente">Ambiente *</label>
+          <input type="text" id="pAmbiente" required placeholder="Ex: Cozinha Gourmet + Ilha" />
+        </div>
+        <div class="form-group">
+          <label for="pMdf">Padrão de MDF / Acabamento *</label>
+          <input type="text" id="pMdf" required placeholder="Ex: MDF Louro Freijó + Grafite Fosco" />
+        </div>
+        <div class="form-group">
+          <label for="pValor">Valor do Contrato (R$) *</label>
+          <input type="number" id="pValor" required min="1000" step="100" placeholder="14500" />
+        </div>
+        <div class="form-group">
+          <label for="pPrazo">Previsão de Entrega *</label>
+          <input type="date" id="pPrazo" required />
+        </div>
+        <div class="form-group">
+          <label for="pUrgente">Prioridade / Prazo</label>
+          <select id="pUrgente">
+            <option value="false">Normal</option>
+            <option value="true">Prazo Curto / Atenção</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-gold" style="width: 100%; margin-top: 8px;">Adicionar ao Kanban</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL VISÃO DO CLIENTE -->
+  <div class="modal-backdrop" id="modalCliente">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Visão do Cliente • Acompanhamento</h3>
+        <button class="close-btn" onclick="fecharModal('modalCliente')">&times;</button>
+      </div>
+      <div id="conteudoCliente"></div>
+    </div>
+  </div>
+
+  <script>
+    const TELEFONE_LEMAX = "5531975017409";
+    const STORAGE_KEY = "lemax_control_projetos_v1";
+
+    const ETAPAS = [
+      { nome: "1. Medição & Briefing", pct: 15 },
+      { nome: "2. Projeto 3D", pct: 32 },
+      { nome: "3. Corte & MDF", pct: 52 },
+      { nome: "4. Fabricação & Fita", pct: 75 },
+      { nome: "5. Montagem", pct: 90 },
+      { nome: "6. Concluído", pct: 100 }
+    ];
+
+    const PROJETOS_PADRAO = [
+      {
+        id: 1,
+        cliente: "Mariana Costa",
+        ambiente: "Cozinha Planejada",
+        mdf: "Louro Freijó + Grafite",
+        valor: 16800,
+        prazo: "2026-12-05",
+        etapa: 3,
+        urgente: false
+      },
+      {
+        id: 2,
+        cliente: "Carlos Eduardo",
+        ambiente: "Closet Casal",
+        mdf: "Gianduia + Vidro Reflecta",
+        valor: 13400,
+        prazo: "2026-11-26",
+        etapa: 2,
+        urgente: true
+      },
+      {
+        id: 3,
+        cliente: "Patrícia Souza",
+        ambiente: "Painel Ripado & Rack",
+        mdf: "Carvalho Hanói",
+        valor: 7900,
+        prazo: "2026-12-12",
+        etapa: 1,
+        urgente: false
+      },
+      {
+        id: 4,
+        cliente: "Lucas Fernandes",
+        ambiente: "Home Office Executivo",
+        mdf: "Preto Fosco + Nogueira",
+        valor: 9200,
+        prazo: "2026-11-22",
+        etapa: 4,
+        urgente: false
+      }
+    ];
+
+    let projetos = [];
+
+    function carregarDados() {
+      const salvo = localStorage.getItem(STORAGE_KEY);
+      if (salvo) {
+        projetos = JSON.parse(salvo);
+      } else {
+        projetos = [...PROJETOS_PADRAO];
+        salvarStorage();
+      }
+    }
+
+    function salvarStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(projetos));
+    }
+
+    function restaurarExemplos() {
+      projetos = [...PROJETOS_PADRAO];
+      salvarStorage();
+      renderizarTudo();
+    }
+
+    function formatarMoeda(v) {
+      return Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+    }
+
+    function formatarData(iso) {
+      if (!iso) return "-";
+      const [y, m, d] = iso.split("-");
+      return `${d}/${m}/${y}`;
+    }
+
+    function atualizarKPIs(listaFiltrada) {
+      const ativos = listaFiltrada.filter(p => p.etapa < 5).length;
+      const volume = listaFiltrada.reduce((acc, p) => acc + Number(p.valor), 0);
+      const urgentes = listaFiltrada.filter(p => p.urgente && p.etapa < 5).length;
+      const mediaPct = listaFiltrada.length
+        ? Math.round(listaFiltrada.reduce((acc, p) => acc + ETAPAS[p.etapa].pct, 0) / listaFiltrada.length)
+        : 0;
+
+      document.getElementById("kpiAtivos").textContent = ativos;
+      document.getElementById("kpiValor").textContent = formatarMoeda(volume);
+      document.getElementById("kpiUrgentes").textContent = urgentes;
+      document.getElementById("kpiProgresso").textContent = `${mediaPct}%`;
+    }
+
+    function renderizarTudo() {
+      const termo = document.getElementById("campoBusca").value.trim().toLowerCase();
+      const filtrados = projetos.filter(p =>
+        p.cliente.toLowerCase().includes(termo) ||
+        p.ambiente.toLowerCase().includes(termo) ||
+        p.mdf.toLowerCase().includes(termo)
+      );
+
+      atualizarKPIs(filtrados);
+
+      const board = document.getElementById("kanbanBoard");
+      board.innerHTML = "";
+
+      ETAPAS.forEach((etapaObj, idx) => {
+        const cardsEtapa = filtrados.filter(p => p.etapa === idx);
+        const col = document.createElement("div");
+        col.className = "kanban-col";
+
+        col.innerHTML = `
+          <div class="col-header">
+            <h3>${etapaObj.nome}</h3>
+            <span class="col-count">${cardsEtapa.length}</span>
+          </div>
+        `;
+
+        cardsEtapa.forEach(proj => {
+          const card = document.createElement("div");
+          card.className = `project-card ${proj.urgente && proj.etapa < 5 ? "urgent" : ""}`;
+          card.innerHTML = `
+            <div class="card-top">
+              <strong>${proj.cliente}</strong>
+              ${proj.urgente && proj.etapa < 5 ? '<span class="tag-alerta">Prazo</span>' : ""}
+            </div>
+            <div class="card-meta"><strong>${proj.ambiente}</strong> • ${proj.mdf}</div>
+            <div class="card-meta">Entrega: ${formatarData(proj.prazo)}</div>
+            <div class="card-valor">${formatarMoeda(proj.valor)} (${etapaObj.pct}%)</div>
+            <div class="progress-mini"><div style="width: ${etapaObj.pct}%;"></div></div>
+            <div class="card-footer">
+              <div>
+                <button class="btn-mini" ${proj.etapa === 0 ? "disabled" : ""} onclick="moverProjeto(${proj.id}, -1)">&larr;</button>
+                <button class="btn-mini" ${proj.etapa === ETAPAS.length - 1 ? "disabled" : ""} onclick="moverProjeto(${proj.id}, 1)">&rarr;</button>
+              </div>
+              <button class="btn-mini" onclick="abrirVisaoCliente(${proj.id})">Ver Obra</button>
+            </div>
+          `;
+          col.appendChild(card);
+        });
+
+        board.appendChild(col);
+      });
+    }
+
+    function moverProjeto(id, delta) {
+      const proj = projetos.find(p => p.id === id);
+      if (!proj) return;
+      const novaEtapa = proj.etapa + delta;
+      if (novaEtapa < 0 || novaEtapa >= ETAPAS.length) return;
+      proj.etapa = novaEtapa;
+      salvarStorage();
+      renderizarTudo();
+    }
+
+    function abrirModalNovo() {
+      document.getElementById("modalNovo").classList.add("open");
+    }
+
+    function fecharModal(id) {
+      document.getElementById(id).classList.remove("open");
+    }
+
+    function salvarProjeto(e) {
+      e.preventDefault();
+      const novo = {
+        id: Date.now(),
+        cliente: document.getElementById("pCliente").value.trim(),
+        ambiente: document.getElementById("pAmbiente").value.trim(),
+        mdf: document.getElementById("pMdf").value.trim(),
+        valor: Number(document.getElementById("pValor").value),
+        prazo: document.getElementById("pPrazo").value,
+        urgente: document.getElementById("pUrgente").value === "true",
+        etapa: 0
+      };
+      projetos.unshift(novo);
+      salvarStorage();
+      renderizarTudo();
+      e.target.reset();
+      fecharModal("modalNovo");
+    }
+
+    function abrirVisaoCliente(id) {
+      const proj = projetos.find(p => p.id === id);
+      if (!proj) return;
+
+      const etapasHtml = ETAPAS.map((et, i) => {
+        let classe = "timeline-step";
+        let statusTexto = "Aguardando";
+        if (i < proj.etapa) {
+          classe += " done";
+          statusTexto = "Concluído";
+        } else if (i === proj.etapa) {
+          classe += " current";
+          statusTexto = "Em andamento";
+        }
+        return `<div class="${classe}"><span>${et.nome}</span><span>${statusTexto}</span></div>`;
+      }).join("");
+
+      const msgWhats = encodeURIComponent(
+        `Olá *LEMAX Móveis Planejados*! Gostaria de falar sobre o meu projeto *${proj.ambiente}* (Cliente: ${proj.cliente}).`
+      );
+
+      document.getElementById("conteudoCliente").innerHTML = `
+        <p style="margin-bottom: 10px;"><strong>Cliente:</strong> ${proj.cliente}</p>
+        <p style="margin-bottom: 10px;"><strong>Ambiente:</strong> ${proj.ambiente} (${proj.mdf})</p>
+        <p style="margin-bottom: 14px;"><strong>Previsão de Entrega:</strong> ${formatarData(proj.prazo)} • <strong>Progresso:</strong> ${ETAPAS[proj.etapa].pct}%</p>
+        <div style="margin-bottom: 12px;">${etapasHtml}</div>
+        <button class="btn-whatsapp" onclick="window.open('https://wa.me/${TELEFONE_LEMAX}?text=${msgWhats}', '_blank')">
+          Falar com a LEMAX no WhatsApp
+        </button>
+      `;
+
+      document.getElementById("modalCliente").classList.add("open");
+    }
+
+    carregarDados();
+    renderizarTudo();
+  </script>
+</body>
+</html>
