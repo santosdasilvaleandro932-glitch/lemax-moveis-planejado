@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador Inteligente LEMAX | Móveis Planejados</title>
+  <style>
+    :root {
+      --bg-dark: #141414;
+      --bg-card: #1E1E1E;
+      --bg-elevated: #282828;
+      --wood: #8B5A2B;
+      --wood-light: #A6723E;
+      --gold: #D4AF37;
+      --gold-hover: #E5C150;
+      --text-main: #F5F5F5;
+      --text-muted: #B0B0B0;
+      --border: #333333;
+      --whatsapp: #25D366;
+      --success: #2ECC71;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding-bottom: 40px;
+    }
+
+    header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 1.25rem;
+      letter-spacing: 2px;
+      color: var(--gold);
+      line-height: 1.1;
+    }
+
+    .brand span {
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .header-tag {
+      background: rgba(212, 175, 55, 0.14);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .container {
+      max-width: 1160px;
+      margin: 28px auto 0;
+      padding: 0 5%;
+    }
+
+    .title-area {
+      margin-bottom: 24px;
+    }
+
+    .title-area h1 {
+      font-size: clamp(1.6rem, 3.5vw, 2.3rem);
+      margin-bottom: 6px;
+    }
+
+    .title-area h1 span {
+      color: var(--gold);
+    }
+
+    .title-area p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* BARRA DE PROGRESSO */
+    .progress-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+
+    .steps-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .steps-labels span.active {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 8px;
+      background: var(--bg-elevated);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 25%;
+      background: linear-gradient(90deg, var(--wood-light), var(--gold));
+      transition: width 0.3s ease;
+    }
+
+    /* LAYOUT PRINCIPAL */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+    }
+
+    .step-content {
+      display: none;
+    }
+
+    .step-content.active {
+      display: block;
+    }
+
+    .step-heading {
+      font-size: 1.2rem;
+      margin-bottom: 16px;
+      color: var(--gold);
+    }
+
+    /* OPÇÕES DE AMBIENTE E LINHA */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .option-card {
+      background: var(--bg-elevated);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .option-card:hover {
+      border-color: var(--wood-light);
+    }
+
+    .option-card.selected {
+      border-color: var(--gold);
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    .option-card strong {
+      display: block;
+      font-size: 0.98rem;
+      margin-bottom: 4px;
+    }
+
+    .option-card small {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      display: block;
+    }
+
+    .slider-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .slider-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .meters-badge {
+      background: var(--gold);
+      color: #111;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+
+    /* CHECKBOXES DE FERRAGENS */
+    .addon-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .addon-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+    }
+
+    .addon-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .addon-left input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+
+    .addon-price {
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 0.88rem;
+      white-space: nowrap;
+      margin-left: 8px;
+    }
+
+    /* CAMPOS DE AGENDAMENTO */
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #E0E0E0;
+    }
+
+    input[type="text"], input[type="tel"], input[type="date"], select {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text-main);
+      font-size: 0.92rem;
+    }
+
+    /* BOTÕES DE NAVEGAÇÃO */
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn {
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    .btn-back {
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-next {
+      background: var(--gold);
+      color: #111;
+      margin-left: auto;
+    }
+
+    .btn-next:hover {
+      background: var(--gold-hover);
+    }
+
+    /* PAINEL LATERAL DE RESUMO */
+    .summary-card {
+      position: sticky;
+      top: 20px;
+    }
+
+    .summary-title {
+      font-size: 1.1rem;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--gold);
+    }
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+      gap: 10px;
+    }
+
+    .summary-line span:first-child {
+      color: var(--text-muted);
+    }
+
+    .summary-line span:last-child {
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .estimate-box {
+      background: linear-gradient(135deg, rgba(139, 90, 43, 0.25), rgba(212, 175, 55, 0.12));
+      border: 1px solid var(--gold);
+      border-radius: 12px;
+      padding: 18px;
+      margin: 18px 0;
+      text-align: center;
+    }
+
+    .estimate-box small {
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.75rem;
+      color: var(--gold);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .estimate-range {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #FFF;
+    }
+
+    .disclaimer {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    .btn-whatsapp {
+      width: 100%;
+      background: var(--whatsapp);
+      color: #0B2413;
+      padding: 14px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 800;
+      font-size: 0.98rem;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .voucher-box {
+      display: none;
+      margin-top: 16px;
+      background: rgba(46, 204, 113, 0.1);
+      border: 1px solid var(--success);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 0.86rem;
+    }
+
+    .voucher-box.show {
+      display: block;
+    }
+
+    @media (max-width: 880px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+      .summary-card {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <svg width="42" height="42" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="56" height="56" rx="12" fill="#141414" stroke="#D4AF37" stroke-width="2.5"/>
+        <path d="M16 18V46H32" stroke="#D4AF37" stroke-width="4.5" stroke-linecap="square"/>
+        <path d="M26 46V24L37 35L48 24V46" stroke="#A6723E" stroke-width="4.5" stroke-linecap="square"/>
+      </svg>
+      <div>
+        <strong>LEMAX</strong>
+        <span>Móveis Planejados</span>
+      </div>
+    </div>
+    <div class="header-tag">Sistema 1 • Simulador & Medição</div>
+  </header>
+
+  <div class="container">
+    <div class="title-area">
+      <h1>Simulador Inteligente de <span>Móveis Planejados</span></h1>
+      <p>Monte uma estimativa inicial do seu projeto e agende sua visita técnica com a LEMAX.</p>
+    </div>
+
+    <!-- BARRA DE PROGRESSO -->
+    <div class="progress-wrap">
+      <div class="steps-labels">
+        <span id="lbl-1" class="active">1. Ambiente & Metragem</span>
+        <span id="lbl-2">2. Padrão de MDF</span>
+        <span id="lbl-3">3. Ferragens & Extras</span>
+        <span id="lbl-4">4. Agendar Visita Técnica</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <!-- ÁREA INTERATIVA DE PASSOS -->
+      <div class="panel">
+
+        <!-- PASSO 1 -->
+        <div class="step-content active" id="step-1">
+          <h2 class="step-heading">1. Escolha o Ambiente e a Metragem Aproximada</h2>
+          <div class="options-grid" id="ambientesGrid">
+            <div class="option-card selected" data-nome="Cozinha Planejada" data-base="1850" onclick="selecionarAmbiente(this)">
+              <strong>Cozinha Planejada</strong>
+              <small>Armários superiores, inferiores e torre</small>
+            </div>
+            <div class="option-card" data-nome="Dormitório Casal" data-base="1700" onclick="selecionarAmbiente(this)">
+              <strong>Dormitório Casal</strong>
+              <small>Guarda-roupa, criados e painel</small>
+            </div>
+            <div class="option-card" data-nome="Closet Sob Medida" data-base="1950" onclick="selecionarAmbiente(this)">
+              <strong>Closet Sob Medida</strong>
+              <small>Colmeias, cabideiros e gaveteiros</small>
+            </div>
+            <div class="option-card" data-nome="Sala / Painel TV" data-base="1500" onclick="selecionarAmbiente(this)">
+              <strong>Sala / Painel TV</strong>
+              <small>Painel ripado ou liso + rack</small>
+            </div>
+            <div class="option-card" data-nome="Área Gourmet" data-base="1900" onclick="selecionarAmbiente(this)">
+              <strong>Área Gourmet</strong>
+              <small>Churrasqueira, bancada e cristaleira</small>
+            </div>
+            <div class="option-card" data-nome="Home Office / Loja" data-base="1600" onclick="selecionarAmbiente(this)">
+              <strong>Home Office / Loja</strong>
+              <small>Bancadas, nichos e expositores</small>
+            </div>
+          </div>
+
+          <div class="slider-box">
+            <div class="slider-top">
+              <label for="metragem">Tamanho linear estimado:</label>
+              <span class="meters-badge" id="metragemValor">5,0 m</span>
+            </div>
+            <input type="range" id="metragem" min="2" max="15" step="0.5" value="5" oninput="atualizarCalculo()" />
+          </div>
+        </div>
+
+        <!-- PASSO 2 -->
+        <div class="step-content" id="step-2">
+          <h2 class="step-heading">2. Selecione o Padrão de Acabamento (MDF)</h2>
+          <div class="options-grid" id="linhasGrid">
+            <div class="option-card selected" data-linha="Linha Essencial" data-mult="1.0" onclick="selecionarLinha(this)">
+              <strong>Linha Essencial</strong>
+              <small>MDF branco e cores lisas clássicas com fita PVC.</small>
+            </div>
+            <div class="option-card" data-linha="Linha Contemporânea" data-mult="1.25" onclick="selecionarLinha(this)">
+              <strong>Linha Contemporânea</strong>
+              <small>Madeirados texturizados (Freijó, Carvalho) e grafites.</small>
+            </div>
+            <div class="option-card" data-linha="Linha Premium" data-mult="1.55" onclick="selecionarLinha(this)">
+              <strong>Linha Premium</strong>
+              <small>Lacas, vidros reflecta, perfis de alumínio e acabamentos nobres.</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- PASSO 3 -->
+        <div class="step-content" id="step-3">
+          <h2 class="step-heading">3. Ferragens e Acessórios Técnicos</h2>
+          <div class="addon-list">
+            <label class="addon-item">
+              <div class="addon-left">
+                <input type="checkbox" class="addon-check" data-nome="Corrediças telescópicas com amortecimento" data-valor="650" checked onchange="atualizarCalculo()" />
+                <span>Corrediças telescópicas com amortecimento (Soft-Close)</span>
+              </div>
+              <span class="addon-price">+ R$ 650</span>
+            </label>
+
+            <label class="addon-item">
+              <div class="addon-left">
+                <input type="checkbox" class="addon-check" data-nome="Iluminação em fita/perfil LED embutido" data-valor="850" onchange="atualizarCalculo()" />
+                <span>Iluminação em fita/perfil LED embutido</span>
+              </div>
+              <span class="addon-price">+ R$ 850</span>
+            </label>
+
+            <label class="addon-item">
+              <div class="addon-left">
+                <input type="checkbox" class="addon-check" data-nome="Portas de vidro / perfil de alumínio" data-valor="1200" onchange="atualizarCalculo()" />
+                <span>Portas de vidro / perfil de alumínio</span>
+              </div>
+              <span class="addon-price">+ R$ 1.200</span>
+            </label>
+
+            <label class="addon-item">
+              <div class="addon-left">
+                <input type="checkbox" class="addon-check" data-nome="Organizadores internos (talheres, aramados e divisórias)" data-valor="550" onchange="atualizarCalculo()" />
+                <span>Organizadores internos (talheres, aramados e divisórias)</span>
+              </div>
+              <span class="addon-price">+ R$ 550</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- PASSO 4 -->
+        <div class="step-content" id="step-4">
+          <h2 class="step-heading">4. Agendamento de Visita Técnica</h2>
+          <div class="form-row">
+            <div class="field">
+              <label for="cliNome">Nome completo *</label>
+              <input type="text" id="cliNome" placeholder="Ex: Fernanda Oliveira" oninput="atualizarResumo()" />
+            </div>
+            <div class="field">
+              <label for="cliWhats">WhatsApp *</label>
+              <input type="tel" id="cliWhats" placeholder="(31) 99999-9999" oninput="atualizarResumo()" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="cliBairro">Bairro / Cidade *</label>
+              <input type="text" id="cliBairro" placeholder="Ex: Betim - MG" oninput="atualizarResumo()" />
+            </div>
+            <div class="field">
+              <label for="cliData">Data preferencial *</label>
+              <input type="date" id="cliData" onchange="atualizarResumo()" />
+            </div>
+            <div class="field">
+              <label for="cliTurno">Turno *</label>
+              <select id="cliTurno" onchange="atualizarResumo()">
+                <option value="Manhã (08h às 12h)">Manhã (08h às 12h)</option>
+                <option value="Tarde (13h às 18h)">Tarde (13h às 18h)</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-next" style="width: 100%; margin-top: 8px;" onclick="gerarComprovante()">
+            Confirmar Pré-Agendamento
+          </button>
+
+          <div class="voucher-box" id="voucherBox">
+            <strong>Pré-agendamento registrado na tela!</strong>
+            <div id="voucherDetalhe" style="margin-top: 6px;"></div>
+          </div>
+        </div>
+
+        <!-- BOTÕES VOLTAR / AVANÇAR -->
+        <div class="nav-buttons">
+          <button type="button" class="btn btn-back" id="btnBack" onclick="mudarPasso(-1)" disabled>Voltar</button>
+          <button type="button" class="btn btn-next" id="btnNext" onclick="mudarPasso(1)">Próxima Etapa</button>
+        </div>
+      </div>
+
+      <!-- RESUMO EM TEMPO REAL -->
+      <div class="panel summary-card">
+        <h3 class="summary-title">Resumo da Simulação</h3>
+        <div class="summary-line">
+          <span>Ambiente:</span>
+          <span id="resAmbiente">Cozinha Planejada</span>
+        </div>
+        <div class="summary-line">
+          <span>Metragem:</span>
+          <span id="resMetragem">5,0 m</span>
+        </div>
+        <div class="summary-line">
+          <span>Padrão MDF:</span>
+          <span id="resLinha">Linha Essencial</span>
+        </div>
+        <div class="summary-line">
+          <span>Ferragens/Extras:</span>
+          <span id="resExtras">Corrediças soft-close</span>
+        </div>
+        <div class="summary-line">
+          <span>Visita Técnica:</span>
+          <span id="resVisita">A definir</span>
+        </div>
+
+        <div class="estimate-box">
+          <small>Faixa Estimada de Investimento</small>
+          <div class="estimate-range" id="faixaPreco">R$ 8.675 – R$ 10.225</div>
+          <p class="disclaimer">Estimativa orientativa sujeita a medição técnica presencial, projeto 3D e definição final de ferragens.</p>
+        </div>
+
+        <button type="button" class="btn-whatsapp" onclick="enviarSimulacaoWhatsApp()">
+          Enviar Simulação no WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TELEFONE_LEMAX = "5531975017409"; // Substitua pelo número real com 55 + DDD + número
+    let passoAtual = 1;
+    let ambienteSelecionado = { nome: "Cozinha Planejada", base: 1850 };
+    let linhaSelecionada = { nome: "Linha Essencial", mult: 1.0 };
+    let faixaTexto = "";
+
+    function mudarPasso(delta) {
+      const novoPasso = passoAtual + delta;
+      if (novoPasso < 1 || novoPasso > 4) return;
+      passoAtual = novoPasso;
+
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById(`step-${i}`).classList.toggle("active", i === passoAtual);
+        document.getElementById(`lbl-${i}`).classList.toggle("active", i === passoAtual);
+      }
+
+      document.getElementById("progressFill").style.width = `${passoAtual * 25}%`;
+      document.getElementById("btnBack").disabled = passoAtual === 1;
+      document.getElementById("btnNext").style.display = passoAtual === 4 ? "none" : "inline-block";
+    }
+
+    function selecionarAmbiente(el) {
+      document.querySelectorAll("#ambientesGrid .option-card").forEach(c => c.classList.remove("selected"));
+      el.classList.add("selected");
+      ambienteSelecionado = {
+        nome: el.dataset.nome,
+        base: Number(el.dataset.base)
+      };
+      atualizarCalculo();
+    }
+
+    function selecionarLinha(el) {
+      document.querySelectorAll("#linhasGrid .option-card").forEach(c => c.classList.remove("selected"));
+      el.classList.add("selected");
+      linhaSelecionada = {
+        nome: el.dataset.linha,
+        mult: Number(el.dataset.mult)
+      };
+      atualizarCalculo();
+    }
+
+    function formatarMoeda(valor) {
+      return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+    }
+
+    function atualizarCalculo() {
+      const metros = parseFloat(document.getElementById("metragem").value);
+      document.getElementById("metragemValor").textContent = `${metros.toFixed(1).replace(".", ",")} m`;
+
+      let totalExtras = 0;
+      const nomesExtras = [];
+      document.querySelectorAll(".addon-check:checked").forEach(chk => {
+        totalExtras += Number(chk.dataset.valor);
+        nomesExtras.push(chk.dataset.nome.split(" (")[0]);
+      });
+
+      const subtotal = (metros * ambienteSelecionado.base * linhaSelecionada.mult) + totalExtras;
+      const minimo = Math.round(subtotal * 0.94);
+      const maximo = Math.round(subtotal * 1.12);
+      faixaTexto = `${formatarMoeda(minimo)} – ${formatarMoeda(maximo)}`;
+
+      document.getElementById("resAmbiente").textContent = ambienteSelecionado.nome;
+      document.getElementById("resMetragem").textContent = `${metros.toFixed(1).replace(".", ",")} m`;
+      document.getElementById("resLinha").textContent = linhaSelecionada.nome;
+      document.getElementById("resExtras").textContent = nomesExtras.length ? nomesExtras.join(", ") : "Padrão básico";
+      document.getElementById("faixaPreco").textContent = faixaTexto;
+
+      atualizarResumo();
+    }
+
+    function atualizarResumo() {
+      const data = document.getElementById("cliData").value;
+      const turno = document.getElementById("cliTurno").value;
+      const bairro = document.getElementById("cliBairro").value.trim();
+
+      if (data) {
+        const partes = data.split("-");
+        const dataBr = `${partes[2]}/${partes[1]}/${partes[0]}`;
+        document.getElementById("resVisita").textContent = `${dataBr} • ${turno}${bairro ? " (" + bairro + ")" : ""}`;
+      } else {
+        document.getElementById("resVisita").textContent = "A definir";
+      }
+    }
+
+    function gerarComprovante() {
+      const nome = document.getElementById("cliNome").value.trim();
+      const whats = document.getElementById("cliWhats").value.trim();
+      const data = document.getElementById("cliData").value;
+      const turno = document.getElementById("cliTurno").value;
+
+      if (!nome || !whats || !data) {
+        alert("Preencha Nome, WhatsApp e Data preferencial para registrar o pré-agendamento.");
+        return;
+      }
+
+      const partes = data.split("-");
+      const dataBr = `${partes[2]}/${partes[1]}/${partes[0]}`;
+      const box = document.getElementById("voucherBox");
+      document.getElementById("voucherDetalhe").innerHTML =
+        `Cliente: <strong>${nome}</strong><br>Data/Turno: <strong>${dataBr} - ${turno}</strong><br>Estimativa: <strong>${faixaTexto}</strong>`;
+      box.classList.add("show");
+    }
+
+    function enviarSimulacaoWhatsApp() {
+      const nome = document.getElementById("cliNome").value.trim() || "Não informado";
+      const bairro = document.getElementById("cliBairro").value.trim() || "Não informado";
+      const visita = document.getElementById("resVisita").textContent;
+      const metros = document.getElementById("resMetragem").textContent;
+      const extras = document.getElementById("resExtras").textContent;
+
+      const msg =
+        `Olá, *LEMAX Móveis Planejados*! Fiz uma simulação no site:\n\n` +
+        `*Cliente:* ${nome}\n` +
+        `*Local:* ${bairro}\n` +
+        `*Ambiente:* ${ambienteSelecionado.nome} (${metros})\n` +
+        `*Padrão MDF:* ${linhaSelecionada.nome}\n` +
+        `*Ferragens/Extras:* ${extras}\n` +
+        `*Faixa Estimada:* ${faixaTexto}\n` +
+        `*Visita Técnica:* ${visita}`;
+
+      window.open(`https://wa.me/${TELEFONE_LEMAX}?text=${encodeURIComponent(msg)}`, "_blank");
+    }
+
+    atualizarCalculo();
+  </script>
+</body>
+</html>
